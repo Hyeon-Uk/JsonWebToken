@@ -3,6 +3,7 @@ package com.example.jwt.util;
 import com.example.jwt.dto.MemberDto;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SignatureException;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,7 @@ import java.util.Date;
 
 @Component
 @Slf4j
+@RequiredArgsConstructor
 public class JwtProvider {
     @Value("${jwt.secret_key}")
     private String SECRET_KEY;
@@ -18,8 +20,10 @@ public class JwtProvider {
     @Value("${jwt.exp}")
     private long exp;
 
-    public String createToken(MemberDto member) {
-        return Jwts.builder()
+    private final Encrypt encrypt;
+
+    public String createToken(MemberDto member) throws Exception {
+        String token = Jwts.builder()
                 .setHeaderParam("typ","JWT")
                 .setSubject("userToken")
                 .setExpiration(new Date(System.currentTimeMillis()+exp))
@@ -27,11 +31,14 @@ public class JwtProvider {
                 .claim("email",member.getEmail())
                 .signWith(SignatureAlgorithm.HS256,SECRET_KEY.getBytes())
                 .compact();
+        System.out.println("token = " + token);
+        return encrypt.encrypt(token);
     }
 
     public MemberDto parseInfo(String accessToken) throws JwtException {
         Jws<Claims> claims = null;
         try{
+            accessToken = encrypt.decrypt(accessToken);
             MemberDto info = new MemberDto();
             claims = Jwts.parserBuilder().setSigningKey(SECRET_KEY.getBytes()).build().parseClaimsJws(accessToken);
             info.setId(claims.getBody().get("id",Long.class));
@@ -43,11 +50,14 @@ public class JwtProvider {
             //잘못된 jwt구조
             //JWT의 서명실패(변조 데이터)
             throw new JwtException("다시 로그인 해주세요");
+        } catch (Exception e) {
+            throw new JwtException("다시 로그인 해주세요");
         }
     }
 
-    public boolean isValidToken(String accessToken){
+    public boolean isValidToken(String accessToken) throws JwtException {
         try{
+            accessToken = encrypt.decrypt(accessToken);
             Jwts.parserBuilder().setSigningKey(SECRET_KEY.getBytes()).build().parseClaimsJws(accessToken);
             return true;
         }catch(SignatureException e){
@@ -60,6 +70,8 @@ public class JwtProvider {
             log.error("Unsupported JWT token",e);
         }catch(IllegalArgumentException e){
             log.error("JWT claims string is empty",e);
+        } catch (Exception e) {
+            throw new JwtException("다시 로그인 해주세요");
         }
         return false;
     }

@@ -25,7 +25,7 @@ public class MemberController {
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<ApiResult<Token>> signIn(@RequestBody LoginDto loginDto) throws UserNotFoundException {
+    public ResponseEntity<ApiResult<Token>> signIn(@RequestBody LoginDto loginDto) throws Exception {
         return success(memberService.login(loginDto),HttpStatus.OK);
     }
 }

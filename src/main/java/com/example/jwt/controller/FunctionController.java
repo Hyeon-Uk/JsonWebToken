@@ -3,6 +3,7 @@ package com.example.jwt.controller;
 import com.example.jwt.dto.MemberDto;
 import com.example.jwt.dto.Token;
 import com.example.jwt.util.ApiUtils;
+import com.example.jwt.util.Encrypt;
 import com.example.jwt.util.JwtException;
 import com.example.jwt.util.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,11 +29,9 @@ import static com.example.jwt.util.ApiUtils.*;
 * */
 public class FunctionController {
     private final JwtProvider jwtProvider;
-
+    private final Encrypt encrypt ;
     @GetMapping("/info")
-    public ResponseEntity<ApiResult<MemberDto>> getTokenInfo(@RequestHeader(value="Authorization") String token) throws JwtException {
-
-        System.out.println("token.accessToken = "+token);
+    public ResponseEntity<ApiResult<MemberDto>> getTokenInfo(@RequestHeader(value="Authorization") String token) throws Exception {
         return success(jwtProvider.parseInfo(token.split(" ")[1]), HttpStatus.OK);
     }
 }

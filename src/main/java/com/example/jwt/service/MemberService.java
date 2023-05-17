@@ -6,6 +6,6 @@ import com.example.jwt.dto.Token;
 import com.example.jwt.util.UserNotFoundException;
 
 public interface MemberService {
-    Token login(LoginDto dto) throws UserNotFoundException;
+    Token login(LoginDto dto) throws Exception;
     void register(RegistDto dto);
 }

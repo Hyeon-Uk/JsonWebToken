@@ -19,7 +19,7 @@ public class MemberServiceImpl implements MemberService {
 
     //비밀번호 암호화는 했다고 가정하고 진행. jwt사용에 집중
     @Override
-    public Token login(LoginDto dto) throws UserNotFoundException {
+    public Token login(LoginDto dto) throws Exception {
         //email검증
         Member member = memberRepository
                 .findByEmail(dto.getEmail())

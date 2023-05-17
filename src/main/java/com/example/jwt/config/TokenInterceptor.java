@@ -1,5 +1,6 @@
 package com.example.jwt.config;
 
+import com.example.jwt.util.Encrypt;
 import com.example.jwt.util.JwtException;
 import com.example.jwt.util.JwtProvider;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,9 +15,10 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Slf4j
 public class TokenInterceptor implements HandlerInterceptor {
     private final JwtProvider jwtProvider;
+    private final Encrypt encrypt;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws JwtException {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //bearer 검증
         String authorization = request.getHeader("Authorization");
         if(authorization == null){
@@ -27,9 +29,7 @@ public class TokenInterceptor implements HandlerInterceptor {
         if(tokens.length!=2){
             throw new JwtException("안됩니다2.");
         }
-
-        String accessToken = tokens[1];
-        if(!jwtProvider.isValidToken(accessToken)){
+        if(!jwtProvider.isValidToken(tokens[1])){
             throw new JwtException("안됩니다3.");
         }
 
